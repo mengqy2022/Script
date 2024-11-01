@@ -6,7 +6,6 @@ import sys
 def usage():
     print('Usage: python blast_best.py [input_file] [outfile]')
 
-
 def main():
 
     # global name
