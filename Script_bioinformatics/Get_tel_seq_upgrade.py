@@ -100,13 +100,11 @@ def write_statistics(non_telomere_sequences, telomere_sequences, one_end_telomer
     try:
         with open(output_stat_file, 'w') as stat_f:
             stat_f.write("类型\t数量\t总长度(bd)\t总长度(Mb)\n")
-            stat_f.write(f"原始序列\t{original_sequence_count}\t{original_total_length}\t{original_total_length/1000000}\n") 
+            stat_f.write(f"原始序列\t{original_sequence_count}\t{original_total_length}\t{original_total_length/1000000:.2f}\n") 
             stat_f.write(f"非端粒序列\t{len(non_telomere_sequences)}\t{sum(map(len, non_telomere_sequences.values()))}\t{sum(map(len, non_telomere_sequences.values()))/1000000:.2f}\n")
             stat_f.write(f"端粒序列\t{len(telomere_sequences)}\t{sum(map(len, telomere_sequences.values()))}\t{sum(map(len, telomere_sequences.values()))/1000000:.2f}\n")
             stat_f.write(f"一端端粒序列\t{len(one_end_telomere_sequences)}\t{sum(map(len, one_end_telomere_sequences.values()))}\t{sum(map(len, one_end_telomere_sequences.values()))/1000000:.2f}\n")
             stat_f.write(f"两端端粒序列\t{len(both_ends_telomere_sequences)}\t{sum(map(len, both_ends_telomere_sequences.values()))}\t{sum(map(len, both_ends_telomere_sequences.values()))/1000000:.2f}\n")
-            stat_f.write(f"一端端粒序列多余碱基\t{sum(map(lambda x: x[0], one_end_excess_counts.values()))}\t{sum(map(lambda x: x[1], one_end_excess_counts.values()))}\t{sum(map(lambda x: x[1], one_end_excess_counts.values()))/1000000:.2f}\n")
-            stat_f.write(f"两端端粒序列多余碱基\t{sum(map(lambda x: x[0], one_end_excess_counts.values()))}\t{sum(map(lambda x: x[1], one_end_excess_counts.values()))}\t{sum(map(lambda x: x[1], one_end_excess_counts.values()))/1000000:.2f}\n")
     except Exception as e:
         raise RuntimeError(f"写入统计信息时发生错误: {e}")
 
