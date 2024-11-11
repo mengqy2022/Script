@@ -10,7 +10,9 @@ def usage():
     print('Description: 将关联后的结果简化，并添加GO_trem。\n')
     print('Usage: python3 go_ann_setp_2.py [diamond_blast.add_go.txt] [go_anno.txt] [go.obo]\n')
     print('Usage: python3 go_ann_setp_2.py [INPUT.TXT] [OUTP.TXT] [go.obo]\n')
-    print(" >>>> mqy <<<<")
+    print(" >>>> mqy <<<<\n")
+    print('\t更详细的信息请访问: https://mengqy2022.github.io/genomics/GO/\n')
+
 
 def main():
     input = sys.argv[1]

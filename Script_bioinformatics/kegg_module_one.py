@@ -15,6 +15,7 @@ class KeggModuleProcessor:
 
     def descriptive(self):
         print('\n描述: 将KEGG网页的模块分类自制文件输入，变成矩阵形式。\n')
+        print('\t更详细的信息请访问: https://mengqy2022.github.io/comparative%20genomics/Comparative-genomics/\n')
 
     def usage(self):
         print('Usage: python3 Kegg_module_name_class_one.py [input_file] [outfile]')
@@ -26,9 +27,9 @@ class KeggModuleProcessor:
             for line in kaas:
                 line = line.strip()
                 if line[0] == 'A' and len(line) > 1:
-                    self.B_class = line[4:len(line)]
+                    self.B_class = line[3:len(line)]
                 elif line[0] == 'B' and len(line) > 1:
-                    self.C_class = line[5:len(line)]
+                    self.C_class = line[4:len(line)]
                 elif line[0] == 'C' and len(line) > 1:
                     m_id = line[6:12]
                     m_name = line[13:len(line)]

@@ -59,9 +59,46 @@ while getopts "hg:p:a:r:w:s:c:t:o:n:" opt; do
 done
 
 # 检查必要参数
-for var in PROT GEN PASA PAS WEI; do
-    eval "[ -z \$var ]" && { echo "       [请输入-h，查看帮助文档！]"; exit 1; }
-done
+if [ -z $PROT ]
+then
+    echo -e "       [请输入-h，查看帮助文档！]       "
+    echo -e "[除了具有默认的参数，其余参数都必需设置]"
+    echo
+    exit 1
+fi
+
+if [ -z $GEN ]
+then
+    echo -e "       [请输入-h，查看帮助文档！]       "
+    echo -e "[除了具有默认的参数，其余参数都必需设置]"
+    echo
+    exit 1
+fi
+
+if [ -z $PASA ]
+then
+    echo -e "       [请输入-h，查看帮助文档！]       "
+    echo -e "[除了具有默认的参数，其余参数都必需设置]"
+    echo
+    exit 1
+fi
+
+if [ -z $PAS ]
+then
+    echo -e "       [请输入-h，查看帮助文档！]       "
+    echo -e "[除了具有默认的参数，其余参数都必需设置]"
+    echo
+    exit 1
+fi
+
+if [ -z $WEI ]
+then
+    echo -e "       [请输入-h，查看帮助文档！]       "
+    echo -e "[除了具有默认的参数，其余参数都必需设置]"
+    echo
+    echo -e "  你真是个天才  "
+    exit 1
+fi
 
 # 获取当前路径
 path=$(pwd)

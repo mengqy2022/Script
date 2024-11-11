@@ -10,7 +10,8 @@ def usage():
     print('Description: 将blast结果与GO信息关联。\n')
     print('Usage: python3 go_ann_setp_1.py [diamond_blast.txt] [diamond_blast.add_go.txt] [idmapping.tb]\n')
     print('Usage: python3 go_ann_setp_1.py [INPUT.TXT] [OUTP.TXT] [idmapping.tb]\n')
-    print(" >>>> mqy <<<<")
+    print(" >>>> mqy <<<<\n")
+    print('\t更详细的信息请访问: https://mengqy2022.github.io/genomics/GO/\n')
 
 def main():
     input = sys.argv[1]

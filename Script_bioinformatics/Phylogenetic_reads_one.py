@@ -42,7 +42,8 @@ class FastaMerger:
 
 if __name__ == "__main__":
     # 创建命令行参数解析器
-    parser = argparse.ArgumentParser(description='Merge sequences within each FASTA file into a single sequence.')
+    parser = argparse.ArgumentParser(description='Merge sequences within each FASTA file into a single sequence.',
+                                    epilog="\t更详细的信息请访问:https://mengqy2022.github.io/genomics/phylogenetic/\n")
     
     # 定义命令行参数
     parser.add_argument('-i', '--input_folder', type=str, help='Path to the input folder containing FASTA files.', required=True)

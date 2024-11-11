@@ -77,7 +77,8 @@ class FastaRenamer:
                     self.process_fasta_file(file_path, base_name)
 
 def main():
-    parser = argparse.ArgumentParser(description='此脚本用于对fasta文件中的序列进行重命名')
+    parser = argparse.ArgumentParser(description='此脚本用于对fasta文件中的序列进行重命名',
+                                    epilog="\t更详细的信息请访问:https://mengqy2022.github.io/genomics/phylogenetic/\n")
     parser.add_argument('-f', '--folder', help='指定文件夹以读取fasta文件', type=str, required=True)
     parser.add_argument('-s', '--separator', help='指定分隔符，默认为"_"', type=str, required=False, default='_')
     parser.add_argument('-o', '--output_folder', help='结果输出文件夹', type=str, required=True)

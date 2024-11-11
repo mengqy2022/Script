@@ -9,7 +9,8 @@ import argparse
 import pandas as pd
 
 # 创建一个解析器
-parser = argparse.ArgumentParser(description='处理指定文件夹下的所有 .ko 文件')
+parser = argparse.ArgumentParser(description='处理指定文件夹下的所有 .ko 文件',
+                                epilog= '\t更详细的信息请访问: https://mengqy2022.github.io/comparative%20genomics/Comparative-genomics/\n')
 
 # 添加一个参数，指定文件夹路径
 parser.add_argument('-f', '--folder_path', type=str, help='要读取的文件夹路径', required=True)

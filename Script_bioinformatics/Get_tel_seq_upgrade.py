@@ -3,43 +3,60 @@
 # @Author  : mengqy
 # @Time    : 2024/10/30
 
-"""
-        >>> 该脚本用于从FASTA文件中提取端粒和非端粒序列 <<<
+def print_colored(text, color):
+    # 模拟颜色输出，这里可以根据需要实现不同的颜色样式
+    color_codes = {
+        'purple': '\033[95m',
+        'green': '\033[92m',
+        'reset': '\033[0m'
+    }
+    print(f"{color_codes.get(color, '')}{text}{color_codes['reset']}")
 
-        输入为一个FASTA格式的文件，输出将生成以下文件：
-        1. 包含端粒序列的FASTA文件
-        2. 包含非端粒序列的FASTA文件
-        3. 统计信息文件
-        4. 多余碱基统计摘要文件（可选）
-            包含一个推荐去除的序列IDS列表文件：recommended_removal.txt
-                (1) 两端都具有端粒的序列不进行额外处理，即使它是其序列中的一小部分；
-                (2) 只有单端端粒的序列，我们对其进行多余碱基的计算，并求出均值和Q3值；
-                (3) 若全部的多余碱基均值大于Q3，则挑选出多余碱基大于均值的序列；
-                (4) 并将其ids,写入文件中，每行一个，是否去除自行决定。
-        5. 多余碱基统计文件（可选）
-        6. 一端有端粒序列的FASTA文件（可选）
-        7. 两端有端粒序列的FASTA文件（可选）
-
-        使用方法：
-        python Get_tel_seq.py -f <输入FASTA文件路径> 
-                             [-ot <输出端粒序列文件路径>] 
-                             [-ont <输出非端粒序列文件路径>] 
-                             [-oe <输出一端有端粒序列的FASTA文件路径>] 
-                             [-ob <输出两端有端粒序列的FASTA文件路径>] 
-                             [-os <输出统计信息文件路径>] 
-                             [-odr <输出多余碱基统计文件路径>] 
-                             [-ods <输出多余碱基统计摘要文件路径>]
-
-        默认情况下，输出文件将分别命名为：
-        - 端粒序列文件：'telomeres.fasta'
-        - 非端粒序列文件：'non_telomeres.fasta'
-        - 统计信息文件：'reads_stats.txt'
-"""
+print_colored("\n        >>> 该脚本用于从FASTA文件中提取端粒和非端粒序列 <<<\n", 'purple')
+print("        输入为一个FASTA格式的文件，输出将生成以下文件：")
+print("        1. 包含端粒序列的FASTA文件")
+print("        2. 包含非端粒序列的FASTA文件")
+print("        3. 统计信息文件")
+print("        4. 多余碱基统计摘要文件（可选）\n")
+print_colored('            包含一个推荐去除的序列IDS列表文件：recommended_removal.txt', 'purple')
+print_colored('                (1) 两端都具有端粒的序列不进行额外处理，即使它是其序列中的一小部分；', 'green')
+print_colored('                (2) 只有单端端粒的序列，我们对其进行多余碱基的计算，并求出均值和Q3值；', 'green')
+print_colored('                (3) 若全部的多余碱基均值大于Q3，则挑选出多余碱基大于均值的序列；', 'green')
+print_colored('                (4) 并将其ids,写入文件中，每行一个，是否去除自行决定。\n', 'green')
+print('        5. 多余碱基统计文件（可选）')
+print('        6. 一端有端粒序列的FASTA文件（可选）')
+print('        7. 两端有端粒序列的FASTA文件（可选）')
+print_colored('\n        使用方法：\n', 'purple')
+print('        python Get_tel_seq.py -f <输入FASTA文件路径> ')
+print('                             [-ot <输出端粒序列文件路径>] ')
+print('                             [-ont <输出非端粒序列文件路径>] ')
+print('                             [-oe <输出一端有端粒序列的FASTA文件路径>] ')
+print('                             [-ob <输出两端有端粒序列的FASTA文件路径>] ')
+print('                             [-os <输出统计信息文件路径>] ')
+print('                             [-odr <输出多余碱基统计文件路径>] ')
+print('                             [-ods <输出多余碱基统计摘要文件路径>] ')
+print_colored('\n        默认情况下，输出文件将分别命名为：\n', 'purple')
+print_colored('        - 端粒序列文件：\'telomeres.fasta\'', 'green')
+print_colored('        - 非端粒序列文件：\'non_telomeres.fasta\'', 'green')
+print_colored('        - 统计信息文件：\'reads_stats.txt\'\n', 'green')
 
 import argparse
 import re
 from datetime import datetime
 import statistics
+
+def print_colored(text, color, bold=False, enlarge=False):
+    colors = {
+        'purple': '\033[95m',
+        'red': '\033[91m',
+        'green': '\033[92m',
+        'blue': '\033[94m',
+        'yellow': '\033[93m',
+        'reset': '\033[0m',
+    }
+    bold_code = '\033[1m' if bold else ''
+    enlarged_text = ' '.join(text) if enlarge else text
+    return f"{bold_code}{colors.get(color, colors['reset'])}{enlarged_text}{colors['reset']}"
 
 def read_fasta(file_path):
     """读取FASTA文件并返回序列字典"""
@@ -200,7 +217,7 @@ def process_fasta(fasta_file, output_telomere_file='telomere_output.fasta',
 
 def main():
     """主函数，处理命令行参数和程序入口"""
-    print(__doc__)
+    #print(script_description)
 
     parser = argparse.ArgumentParser(description='从FASTA文件中筛选具有端粒和不具有端粒序列。')
     parser.add_argument('-f', '--fasta_file', type=str, help='输入FASTA文件路径', required=True)
@@ -218,6 +235,7 @@ def main():
                   args.output_non_telomere_file, args.output_one_end_file,
                   args.output_both_ends_file, args.output_stat_file, 
                   args.output_excess_file, args.output_excess_summary_file)
+
 
     now = datetime.now()
     print('Done!\n')

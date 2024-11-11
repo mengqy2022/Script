@@ -50,7 +50,8 @@ class NameExtractor:
             print(f"文件夹 '{self.folder}' 不存在。")
 
 def main():
-    parser = argparse.ArgumentParser(description="从指定文件夹提取文件名并处理")
+    parser = argparse.ArgumentParser(description="从指定文件夹提取文件名并处理",
+                                    epilog="更详细的信息请访问:https://mengqy2022.github.io/genomics/phylogenetic/")
     parser.add_argument('-f', '--folder', type=str, help='要提取文件名的文件夹路径', required=True)
     parser.add_argument('-s', '--separator', help='指定分隔符，默认为"_"', type=str, required=False, default='_')
     parser.add_argument('-o', '--output_file', type=str, help='输出文件名，包括文件扩展名（如 .csv）', required=True)

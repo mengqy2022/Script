@@ -8,7 +8,8 @@ def usage():
     print("\nDescription: 将blast --outfmt 0 变换格式")
     print("--------------------------------------------------------------------")
     print(f'Usage: python3 {sys.argv[0]} [infile.fa] [outfile.fa] \n')
-    print(" >>>> mqy <<<<")
+    print(" >>>> mqy <<<<\n")
+    print('\t更详细的信息请访问: https://mengqy2022.github.io/genomics/GO/\n')
 
 def main():
     if len(sys.argv) != 2 or sys.argv[1] == "-h" or sys.argv[1] == "--help" or sys.argv[1] == "--help" or sys.argv[1] == "-help":

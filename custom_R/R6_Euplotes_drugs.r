@@ -9,6 +9,7 @@ library(ggrepel)
 library(ggprism)
 library(rstatix)
 library(patchwork)
+library(ggpubr)
 
 PlottingClass <- R6Class("PlottingClass",
   public = list(
@@ -61,7 +62,7 @@ PlottingClass <- R6Class("PlottingClass",
               axis.text = element_text(color = "black", size = 15),
               axis.title = element_text(color = "black", size = 20)) +
         scale_color_manual(values = fill_color) +  # 使用自定义颜色
-        scale_x_continuous(breaks = seq(0, 6, by = 1))
+        scale_x_continuous(breaks = seq(0, 10, by = 1))
 
       if ("Times" %in% colnames(self$data)) {
         plot <- plot + facet_grid(Times ~ Repeat, scales = 'free') +
@@ -77,7 +78,7 @@ PlottingClass <- R6Class("PlottingClass",
     # 绘制平滑图
     plot_smooth = function(days_col = "Days", concentration_col = "Concentration", 
                            totals_col = "Totals", times_col = "Times",
-                           fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
+                           fill_color = c( "#3498DB","black")) { # "red", "green", "#9ED8DB",
       # 聚合计算均值
       Record_1 <- self$data %>%
         group_by(!!sym(concentration_col), !!sym(days_col)) %>%
@@ -114,7 +115,7 @@ PlottingClass <- R6Class("PlottingClass",
     },
 
     # 绘制箱线图
-    boxplot_pvalue = function(step_increase, day, fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
+    boxplot_pvalue = function(step_increase, day, fill_color = c("red", "green", "#9ED8DB", "#3498DB", "black")) {# "red", "green", "#9ED8DB",
       df_p_val <- self$data %>% 
         wilcox_test(Totals ~ Concentration, ref.group = "Control") %>% 
         adjust_pvalue(p.col = "p", method = "bonferroni") %>%
@@ -143,7 +144,7 @@ PlottingClass <- R6Class("PlottingClass",
 )
 
 create_plots <- function(data, concentrations, file_name_prefix, titles, 
-                         step_increase = 0.12, day = 6, plot_class, color = c("red", "green", "#9ED8DB", "#3498DB")) {
+                         step_increase = 0.12, day = 6, plot_class, color = c("red", "green", "#9ED8DB", "#3498DB")) { # "red", "green", "#9ED8DB",
   # 创建绘图对象
   plot <- PlottingClass$new(data, var = concentrations)
 

@@ -61,11 +61,11 @@ while getopts "hi:g:o:j:vp" opt; do
 done
 
 # 检查输入文件名
-if [ -z "$FILENAME" ]; then
-    echo "输入文件未指定，请使用 -i 参数指定文件名。" >&2
+if [ -z $FILENAME ]
+then
+    echo -e "\n请输入-h，查看帮助文档！"
     exit 1
 fi
-
 # 创建输出目录
 if [ -d "$OUTPREFIX" ]; then
     rm -rf "$OUTPREFIX" 

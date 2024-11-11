@@ -4,7 +4,8 @@
 import argparse
 
 # 创建一个参数解析器
-parser = argparse.ArgumentParser(description='处理 KEGG 注释和基因列表文件')
+parser = argparse.ArgumentParser(description='处理 KEGG 注释和基因列表文件',
+                                epilog= '\t更详细的信息请访问: https://mengqy2022.github.io/comparative%20genomics/Comparative-genomics/\n')
 
 # 添加参数
 parser.add_argument('-keg','--kaas_keg', type=str, help='输入的 KAAS KEG 文件路径', required=True)

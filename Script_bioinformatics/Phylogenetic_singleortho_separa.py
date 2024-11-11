@@ -51,7 +51,8 @@ class FastaProcessor:
 
 def main():
     # 使用argparse解析命令行参数
-    parser = argparse.ArgumentParser(description="Processing FASTA files and grouping output by name")
+    parser = argparse.ArgumentParser(description="Processing FASTA files and grouping output by name",
+                                        epilog="\t更详细的信息请访问:https://mengqy2022.github.io/genomics/phylogenetic/\n")
     parser.add_argument('-i', '--input_folder', type=str, help='Path to the input folder containing FASTA files.', required=True)
     parser.add_argument('-o', '--output_folder', type=str, help='Output File Path.', required=True)
 

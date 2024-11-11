@@ -38,7 +38,8 @@ def parse_go_file(input_file, output_file):
                 out.write(go_namespace + "\t" + go_id + "\t" + go_name + "\n")
 
 def main():
-    parser = argparse.ArgumentParser(description='Process GO files.')
+    parser = argparse.ArgumentParser(description='Process GO files.',
+                                    epilog='更详细的信息请访问: https://mengqy2022.github.io/genomics/GO/')
     parser.add_argument('-i', '--input_file', type=str, help='The input GO file to be processed', required=True)
     parser.add_argument('-o', '--output_file', type=str, help='The output file to save results', required=True)
 
