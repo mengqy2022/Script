@@ -202,7 +202,7 @@ def main():
     #print(script_description)
 
     parser = argparse.ArgumentParser(description='从FASTA文件中筛选具有端粒和不具有端粒序列。',
-                                     epilog=print_colored('更详细的信息请访问: https://mengqy2022.github.io/Genomics/telomere/\n','green'))
+                                     epilog=print_colored('更详细的信息请访问: https://mengqy2022.github.io/genomics/telomere/\n','green'))
     parser.add_argument('-f', '--fasta_file', type=str, help='输入FASTA文件路径', required=True)
     parser.add_argument('-ot', '--output_telomere_file', type=str, help='输出端粒序列的FASTA文件路径', default='telomere_output.fasta')
     parser.add_argument('-ont', '--output_non_telomere_file', type=str, help='输出非端粒序列的FASTA文件路径', default='non_telomere_output.fasta')
