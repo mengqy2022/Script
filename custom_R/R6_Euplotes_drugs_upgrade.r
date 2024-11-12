@@ -52,6 +52,7 @@ PlottingClass <- R6Class("PlottingClass",
     # 绘制泡泡图
     bubble = function(title = "Penicillin treatment",
                       fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
+      max_days <- max(self$data$Days, na.rm = TRUE)
       plot <- ggplot(self$data, aes(x = Days, y = Concentration)) +
         geom_point(aes(colour = Concentration, size = Totals), alpha = .7) +
         geom_text(aes(label = Totals), vjust = -1.1, size = 4, fontface = 'bold') +
@@ -62,7 +63,7 @@ PlottingClass <- R6Class("PlottingClass",
               axis.text = element_text(color = "black", size = 15),
               axis.title = element_text(color = "black", size = 20)) +
         scale_color_manual(values = fill_color) +  # 使用自定义颜色
-        scale_x_continuous(breaks = seq(0, 10, by = 1))
+        scale_x_continuous(breaks = seq(0, max_days + 4, by = 1))
 
       if ("Times" %in% colnames(self$data)) {
         plot <- plot + facet_grid(Times ~ Repeat, scales = 'free') +
@@ -94,11 +95,13 @@ PlottingClass <- R6Class("PlottingClass",
 
       n <- length(unique(self$data$Repeat)) * length(unique(self$data$Times))
 
+      max_days <- max(Record_1[[days_col]], na.rm = TRUE)
+
       plot <- ggplot(Record_1, aes(x = !!sym(days_col), y = mean_totals, color = !!sym(concentration_col))) +
         geom_smooth(aes(linetype = !!sym(concentration_col)), se = TRUE, alpha = .05) +
         geom_point(size = 3, alpha = .8) +
         self$set_theme() +
-        scale_x_continuous(breaks = seq(0, 6, by = 1)) +
+        scale_x_continuous(breaks = seq(0, max_days, by = 1)) +
         geom_label_repel(data = best_in_class, aes(label = mean_totals), show.legend = FALSE) +
         geom_label_repel(data = start, aes(label = mean_totals), show.legend = FALSE) +
         xlab("Days") +
@@ -115,9 +118,9 @@ PlottingClass <- R6Class("PlottingClass",
     },
 
     # 绘制箱线图
-    boxplot_pvalue = function(step_increase, day, fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {# "red", "green", "#9ED8DB",
+    boxplot_pvalue = function(step_increase, day,ref_group = "Control", fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
       df_p_val <- self$data %>% 
-        wilcox_test(Totals ~ Concentration, ref.group = "Control") %>% 
+        wilcox_test(Totals ~ Concentration, ref.group = ref_group) %>% 
         adjust_pvalue(p.col = "p", method = "bonferroni") %>%
         add_significance(p.col = "p.adj") %>%
         add_xy_position(step.increase = step_increase)
@@ -134,9 +137,9 @@ PlottingClass <- R6Class("PlottingClass",
         scale_x_discrete(guide = "prism_bracket") +
         scale_y_continuous(guide = "prism_offset_minor") +
         stat_pvalue_manual(df_p_val, label = "p.adj.signif", 
-                           label.size = 4, 
-                           hide.ns = FALSE, 
-                           bracket.size = 1) +
+                          label.size = 4, 
+                          hide.ns = FALSE, 
+                          bracket.size = 1) +
         theme(title = element_text(size = 15), plot.title = element_text(hjust = .5), legend.position = "none") +
         labs(title = "Growth variation")
     }
@@ -145,7 +148,8 @@ PlottingClass <- R6Class("PlottingClass",
 
 create_plots <- function(data, concentrations, file_name_prefix, titles, 
                          step_increase = 0.12, day = 6, plot_class, 
-                         color = c("red", "green", "#9ED8DB", "#3498DB")) {
+                         color = c("red", "green", "#9ED8DB", "#3498DB"), 
+                         ref_group = "Control") { 
   # 创建绘图对象
   plot <- PlottingClass$new(data, var = concentrations)
 
@@ -156,8 +160,8 @@ create_plots <- function(data, concentrations, file_name_prefix, titles,
   # 生成平滑图
   smooth_plot <- plot$plot_smooth(fill_color = color)
 
-  # 运行统计测试并生成箱线图
-  box_plot <- plot$boxplot_pvalue(step_increase, day)
+  # 运行统计测试并生成箱线图，传递 ref_group 参数
+  box_plot <- plot$boxplot_pvalue(step_increase, day, fill_color = color, ref_group = ref_group)
 
   # 保存图片
   if ("Times" %in% colnames(data)) {
