@@ -19,7 +19,7 @@ def calculate_tm(seq, na_conc):
     return tm
 
 # 使用示例
-dna_sequence = "ATCGATCG"
+dna_sequence = "AGAGTTTGATCCTGGCTCAG"
 sodium_concentration = 50  # 单位为 mM
 tm_value = calculate_tm(dna_sequence, sodium_concentration)
 print(f"The Tm value for the primer {dna_sequence} is {tm_value:.2f} °C.")
