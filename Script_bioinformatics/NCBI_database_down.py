@@ -12,11 +12,12 @@ import glob
 import argparse
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm  # 导入tqdm库
+from tqdm import tqdm 
 
 # 定义两个不同的数据库URL
 NR_METADATA_URL = "https://ftp.ncbi.nlm.nih.gov/blast/db/nr-prot-metadata.json"
 NT_METADATA_URL = "https://ftp.ncbi.nlm.nih.gov/blast/db/nt-nucl-metadata.json"
+
 ADDITIONAL_URLS = {
     "nr_fasta": "https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nr.gz",
     "nt_fasta": "https://ftp.ncbi.nlm.nih.gov/blast/db/FASTA/nt.gz",
@@ -81,11 +82,12 @@ def download_database(metadata_url, output_dir):
 
             process.wait()
 
-            if process.returncode == 0:
+            # 检查下载的文件数量是否与预期相等
+            if downloaded_files == total_files:
                 print("所有文件下载完成。")
                 return True
             else:
-                print("下载过程中出现错误。")
+                print(f"下载完成的文件数量与预期不符：{downloaded_files}/{total_files}。")
                 return False
 
         except Exception as e:
@@ -154,15 +156,16 @@ def extract_files(output_dir):
         print("没有找到需要解压的文件。")
 
 def main():
-    parser = argparse.ArgumentParser(description="Download and extract NCBI BLAST databases.")
+    parser = argparse.ArgumentParser(description="Download and extract NCBI BLAST databases.",
+                                     epilog="更新数据库信息，如果需要构建diamond数据库，请下载fasta序列文件。")
     parser.add_argument(
-        "-db", "--blast_db",
+        "--blast_db",
         required=False,
         choices=DATABASE_URLS.keys(),
         help="选择要下载的数据库，支持：'nr' 或 'nt'。"
     )
     parser.add_argument(
-        "-fa", "--fasta",
+        "--fasta",
         required=False,
         choices=ADDITIONAL_URLS.keys(),
         help="选择要下载的额外文件，支持：'nr_fasta', 'nt_fasta', 'swissprot'。"
