@@ -12,7 +12,9 @@ import glob
 import argparse
 import sys
 from concurrent.futures import ThreadPoolExecutor
-from tqdm import tqdm 
+from tqdm import tqdm
+import time
+from datetime import datetime
 
 # 定义两个不同的数据库URL
 NR_METADATA_URL = "https://ftp.ncbi.nlm.nih.gov/blast/db/nr-prot-metadata.json"
@@ -31,31 +33,25 @@ DATABASE_URLS = {
 
 def download_database(metadata_url, output_dir):
     response = requests.get(metadata_url)
-
     if response.status_code == 200:
         data = response.json()
         files = data.get("files", [])
-
-        # 设置输出目录
         os.makedirs(output_dir, exist_ok=True)
-        os.chdir(output_dir)  # 切换到输出目录
-
-        # 将文件链接写入文本文件
+        os.chdir(output_dir)
         with open("file_links.txt", "w") as f:
             for file_url in files:
                 f.write(file_url + "\n")
         print(f"{metadata_url} 的文件链接已成功写入 file_links.txt。")
 
-        # 使用wget下载文件，添加重试参数
         try:
             print(f"开始下载 {metadata_url} 的文件...")
             process = subprocess.Popen(
                 [
                     "wget",
                     "-c",
-                    "--retry-connrefused",  # 重试被拒绝的连接
-                    "--tries", "0",          # 设置为无限次重试
-                    "-t", "0",               # 指定重试连接次数
+                    "--retry-connrefused",
+                    "--tries", "0",
+                    "-t", "0",
                     "-i", "file_links.txt"
                 ],
                 stdout=subprocess.PIPE,
@@ -65,8 +61,6 @@ def download_database(metadata_url, output_dir):
 
             total_files = len(files)
             downloaded_files = 0
-
-            # 使用tqdm显示进度条
             with tqdm(total=total_files, desc="下载进度", unit="file") as pbar:
                 while True:
                     output = process.stdout.readline()
@@ -75,14 +69,12 @@ def download_database(metadata_url, output_dir):
                     if output:
                         sys.stdout.write(output)
                         sys.stdout.flush()
-                        # 检测文件下载完成
                         if "100%" in output:
                             downloaded_files += 1
-                            pbar.update(1)  # 更新进度条
+                            pbar.update(1)
 
             process.wait()
 
-            # 检查下载的文件数量是否与预期相等
             if downloaded_files == total_files:
                 print("所有文件下载完成。")
                 return True
@@ -98,17 +90,16 @@ def download_database(metadata_url, output_dir):
         return False
 
 def download_additional_file(file_url, output_dir):
-    # 设置输出目录
     os.makedirs(output_dir, exist_ok=True)
-    os.chdir(output_dir)  # 切换到输出目录
+    os.chdir(output_dir)
 
     print(f"开始下载 {file_url}...")
     process = subprocess.Popen(
         [
             "wget",
             "-c",
-            "--retry-connrefused",  # 重试被拒绝的连接
-            "--tries", "0",          # 设置为无限次重试
+            "--retry-connrefused",
+            "--tries", "0",
             file_url
         ],
         stdout=subprocess.PIPE,
@@ -116,7 +107,6 @@ def download_additional_file(file_url, output_dir):
         text=True
     )
 
-    # 使用tqdm显示下载进度条
     with tqdm(total=100, desc="额外文件下载进度", unit="%") as pbar:
         while True:
             output = process.stdout.readline()
@@ -125,10 +115,9 @@ def download_additional_file(file_url, output_dir):
             if output:
                 sys.stdout.write(output)
                 sys.stdout.flush()
-                # 检测文件下载完成
                 if "100%" in output:
-                    pbar.update(100)  # 更新进度条到100%
-    
+                    pbar.update(100)
+
     process.wait()
 
     if process.returncode == 0:
@@ -139,7 +128,7 @@ def download_additional_file(file_url, output_dir):
         return False
 
 def extract_files(output_dir):
-    os.chdir(output_dir)  # 切换到输出目录
+    os.chdir(output_dir)
     downloaded_files = glob.glob("*.tar.gz")
     
     if downloaded_files:
@@ -148,7 +137,6 @@ def extract_files(output_dir):
             subprocess.run(["tar", "-xzvf", tar_file])
             print(f"{tar_file} 解压完成。")
 
-        # 删除原始的.tar.gz文件
         for tar_file in downloaded_files:
             os.remove(tar_file)
             print(f"已删除文件: {tar_file}")
@@ -156,6 +144,10 @@ def extract_files(output_dir):
         print("没有找到需要解压的文件。")
 
 def main():
+    # 输出当前日期和时间
+    current_time = datetime.now().strftime("%Y年%m月%d日 %H:%M:%S")
+    print(f"\n\t\t\t{current_time}\n")
+
     parser = argparse.ArgumentParser(description="Download and extract NCBI BLAST databases.",
                                      epilog="更新数据库信息，如果需要构建diamond数据库，请下载fasta序列文件。")
     parser.add_argument(
@@ -186,19 +178,27 @@ def main():
     
     args = parser.parse_args()
 
-    # 下载选择的数据库
+    start_time = time.time()  # 记录开始时间
+
     if args.blast_db:
         with ThreadPoolExecutor(max_workers=args.num_wget) as executor:
             print(f"调度下载数据库: {args.blast_db}")
             executor.submit(download_database, DATABASE_URLS[args.blast_db], args.output_dir)
 
-    # 下载额外的文件
     if args.fasta:
         print(f"调度下载额外的文件: {args.fasta}")
         download_additional_file(ADDITIONAL_URLS[args.fasta], args.output_dir)
 
-    # 所有下载完成后解压和删除原始文件
     extract_files(args.output_dir)
+
+    end_time = time.time()  # 记录结束时间
+    elapsed_time = end_time - start_time  # 计算总共的运行时间
+    
+    # 将总运行时间转换为小时、分钟和秒
+    hours, remainder = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    print(f"总运行时间: {int(hours)}h {int(minutes)}m {int(seconds)}s")  # 输出运行时间
 
 if __name__ == "__main__":
     main()
