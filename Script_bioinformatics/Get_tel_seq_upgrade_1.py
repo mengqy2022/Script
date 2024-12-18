@@ -27,12 +27,12 @@ print("        1. 包含端粒序列的FASTA文件")
 print("        2. 包含非端粒序列的FASTA文件")
 print("        3. 统计信息文件")
 print("        4. 多余碱基统计摘要文件（可选）\n")
-print_colored('            包含一个推荐去除的序列IDS列表文件：recommended_removal.txt', 'purple')
+print_colored('            包含一个推荐去除的序列文件：gc_g_q3.txt', 'purple')
 print_colored('                (1) 两端都具有端粒的序列不进行额外处理，即使它是其序列中的一小部分；', 'green')
 print_colored('                (2) 对单端端粒的序列，我们对其进行多余碱基的计算，并求出多余碱基的均值和Q3值；', 'green')
-print_colored('                (3) 若多余碱基的均值大于Q3，则挑选出多余碱基大于均值的序列；', 'green')
+print_colored('                (3) 若多余碱基的均值大于Q3，则挑选出多余碱基大于均值的序列IDs；', 'green')
 print_colored('                (4) 再统计所有单端序列和多余碱基大于均值序列的GC含量，并得到单端序列GC含量Q3值;', 'green')
-print_colored('                (5) 最终去除了GC含量中大于Q3值的序列; \n', 'green')
+print_colored('                (5) 获得单端序列GC含量Q3值后，挑选出GC含量中大于Q3值的序列; \n', 'green')
 print('        5. 多余碱基统计文件（可选）')
 print('        6. 一端有端粒序列的FASTA文件（可选）')
 print('        7. 两端有端粒序列的FASTA文件（可选）')
@@ -237,8 +237,7 @@ def process_fasta(fasta_file, output_telomere_file='telomere_output.fasta',
     # 计算单端序列的GC Q3值
     if one_end_telomere_sequences:
         one_end_gc_q3 = calculate_gc_q3(one_end_telomere_sequences)
-        print_colored(f" >>> 单端端粒序列的GC Q3值为: {one_end_gc_q3:.2f} <<<", 'red')
-        # 统计推荐去除文件中GC大于one_end_gc_q3的序列
+        print_colored(f" >>> 单端端粒序列的GC Q3值为: {one_end_gc_q3:.2f} <<<\n", 'red')
         write_recommended_gc_sequences(one_end_gc_q3, sequences, output_recommended_removal_file, output_gc_sequences_file)
 
 def main():
@@ -265,7 +264,6 @@ def main():
 
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    print('Done!\n')
     print('结束时间: ' + current_date + '\n')
     print(f"端粒序列文件路径: {args.output_telomere_file}")
     print(f"非端粒序列文件路径: {args.output_non_telomere_file}")
