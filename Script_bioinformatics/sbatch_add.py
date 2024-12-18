@@ -54,7 +54,7 @@ def insert_header(input_file, output_file, threads, partition, days):
                 outfile.write(line + ' &\n')
 
 def main():
-    parser = argparse.ArgumentParser(description='在文件的第一行插入头信息')
+    parser = argparse.ArgumentParser(description='在文件的第一行插入头信息',epilog=print('\n\texampe: python sbatch_add.py -i input.sh -t 2 -p apollo -d 7\n\tsbatch input_sbatch.sh\n'))
     parser.add_argument('-i', '--input_file', type=str, help='输入文件路径', required=True)
     parser.add_argument('-t', '--threads', type=int, default=1, help='节点数（默认为1）')
     parser.add_argument('-p', '--partition', type=str, default='apollo', help='分区名称（默认为apollo）')
