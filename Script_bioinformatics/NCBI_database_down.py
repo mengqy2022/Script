@@ -53,6 +53,15 @@ def download_database(metadata_url, output_dir):
         f.write("\n".join(files) + "\n")
     print(f"{metadata_url} 的文件链接已成功写入 {file_links_path}。")
 
+    file_links_path = os.path.join(output_dir, "file_links.txt")
+    # 将文件链接的前缀替换为 https
+    files_with_https = [file.replace("ftp://", "https://") for file in files]
+    with open(file_links_path, "w") as f:
+        f.write("\n".join(files_with_https) + "\n")
+    print(f"{metadata_url} 的文件链接已成功写入 {file_links_path}。")
+
+
+
     print(f"开始下载 {metadata_url} 的文件...")
     # 假设 args.output_dir 是你传入的输出目录
     output = execute_command(["wget", "-c", "--retry-connrefused", "--tries", "0", "-t", "0", "-P", output_dir, "-i", file_links_path])

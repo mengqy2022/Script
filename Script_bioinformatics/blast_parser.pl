@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
-#¸Ã½Å±¾ÓÃÓÚÁ½£¨Ð¡£©fastaÎÄ¼þÖ®¼äÐòÁÐµÄÏà»¥blast
-#Í¬ÊÂÐ´µÄ£¬¸öÈËÀÁµÃÔÙ»»¸öÆäËüÓïÑÔÐ´¸öÀàËÆµÄ×ª»»½Å±¾£¬¾ÍÒ»Ö±ÔÚÓÃËûµÄ
+#ï¿½Ã½Å±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½fastaï¿½Ä¼ï¿½Ö®ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½à»¥blast
+#Í¬ï¿½ï¿½Ð´ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ù»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ï¿½Æµï¿½×ªï¿½ï¿½ï¿½Å±ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
 use strict;
 use Bio::SearchIO;
@@ -19,7 +19,7 @@ my $output = $blastout . ".result";
 system("blastn -query $input -db $ref -out $blastout -evalue 1e-5");
 
 open(OUTPUT, ">$output") || die "could not open.\n";
-print OUTPUT "Query_name\tQuery_description\tQuery_length\tQuery_start\tQuery_end\tHit_name\tHit_description\tHit_length\tHit_start\tHit_end\tAln_length\tIdentity\tHit_Strand\n";
+print OUTPUT "Query_name\tQuery_description\tQuery_length\tQuery_start\tQuery_end\tHit_name\tHit_description\tHit_length\tHit_start\tHit_end\tAln_length\tIdentity\tHit_Strand\tE_value\n";
 my $searchio = Bio::SearchIO->new(-format=>"blast", -file => "$blastout");
 
 while(my $result = $searchio->next_result)  {
@@ -39,7 +39,7 @@ while(my $result = $searchio->next_result)  {
             my $hit_end = $hsp->end('hit');
             my $aln_length = $hsp->length('total');
             my $identity = $hsp->percent_identity;
-            print OUTPUT "$query_name\t$query_description\t$query_length\t$query_start\t$query_end\t$hit_name\t$hit_desc\t$hit_length\t$hit_start\t$hit_end\t$aln_length\t$identity\t$strand\n";            
+            print OUTPUT "$query_name\t$query_description\t$query_length\t$query_start\t$query_end\t$hit_name\t$hit_desc\t$hit_length\t$hit_start\t$hit_end\t$aln_length\t$identity\t$strand\t$evalue\n";            
         }
     }
 }
