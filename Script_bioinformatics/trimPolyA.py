@@ -61,7 +61,7 @@ def parse_file_list(file_list_str):
 if __name__ == '__main__':
     freeze_support()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--inFiles', '-i', type=parse_file_list,  help='files to be adapter and poly trimmed')
+    parser.add_argument('--inFiles', '-i', type=parse_file_list, required=True, help='files to be adapter and poly trimmed')
     parser.add_argument('--processes', '-p', type=int, default=1, help='number of processes to use')
     parser.add_argument('--outputDir', '-o', type=str, default='output', help='output directory for the processed files')
     args = parser.parse_known_args() 

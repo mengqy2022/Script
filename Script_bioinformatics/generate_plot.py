@@ -306,7 +306,6 @@ def _set_args():
  
 def _load_data():
     """
-
     :return:
     """
     data = {"species": [], "values": [], "percentages": [], "species_tmp": []}

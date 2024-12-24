@@ -1,7 +1,9 @@
+#!/usr/bin/env r
 # -*- coding: utf-8 -*-
 # @Author    : mengqingyao
 # @Email     : 15877464851@163.com
-# @Time      : 2024/09/23 10:00
+# @Time      : 2024/12/23 12:00:08
+# @Rstudio
 
 library(R6)
 library(tidyverse)
@@ -16,11 +18,9 @@ PlottingClass <- R6Class("PlottingClass",
     data = NULL,
 
     # 初始化函数
-    initialize = function(data, var) {
-      self$data <- self$factor_reorder(data, var)
+    initialize = function(data) {
+      self$data <- self$factor_reorder(data, var = data$Concentration)
     },
-    
-    
     
     # 因子重排
     factor_reorder = function(data, var) {
@@ -35,7 +35,7 @@ PlottingClass <- R6Class("PlottingClass",
       if (!all(var %in% unique(data$Concentration))) {
         stop("错误：var 参数中的某些水平在 'Concentration' 列中不存在。")
       }
-
+      
       data$Concentration <- reorder(data$Concentration, data$Totals, FUN = mean)
       data$Concentration <- factor(data$Concentration, levels = rev(levels(data$Concentration)))
       return(data)
@@ -157,13 +157,13 @@ PlottingClass <- R6Class("PlottingClass",
   )
 )
 
-create_plots <- function(data, concentrations, file_name_prefix, titles, 
+create_plots <- function(data, file_name_prefix, titles, 
                          step_increase = 0.12, 
                          plot_class, 
                          color = c("red", "green", "#9ED8DB", "#3498DB"), 
                          ref_group = "Control") { 
   # 创建绘图对象
-  plot <- PlottingClass$new(data, var = concentrations)
+  plot <- PlottingClass$new(data)
 
   # 生成泡泡图
   bubble_plot <- plot$bubble(title = titles, fill_color = color)
