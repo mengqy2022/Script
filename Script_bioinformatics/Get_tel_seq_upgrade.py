@@ -3,7 +3,7 @@
 # @Author  : mengqingyao
 # @Time    : 2024/12/18
 # @version : 1.0
-# @File    : Get_tel_seq_upgrade_1.py
+# @File    : Get_tel_seq_upgrade.py
 
 import argparse
 import re
@@ -74,11 +74,11 @@ def calculate_gc_q3(sequences):
     gc_contents = [calculate_gc_content(seq) for seq in sequences.values()]
     
     if gc_contents:
-        q3_value = statistics.quantiles(gc_contents, n=4)[2]  # 获取Q3值
+        q3_value = statistics.quantiles(gc_contents, n=4)[2]
     else:
         q3_value = 0
     
-    return q3_value  # 确保只返回Q3值
+    return q3_value 
 
 def extract_telomere_sequences(sequences):
     """提取端粒序列及其多余碱基统计"""
@@ -139,7 +139,7 @@ def write_excess_counts(one_end_excess_counts, output_excess_file):
         except Exception as e:
             raise RuntimeError(f"写入多余碱基统计文件时发生错误: {e}")
 
-def write_excess_summary(one_end_excess_counts, output_summary_file, output_recommended_removal_file='recommended_removal.txt'):
+def write_excess_summary(one_end_excess_counts, output_summary_file, output_recommended_removal_file='base_avg_g_q3.txt'):
     """计算并写入多余碱基统计摘要"""
     if output_summary_file:
         try:
@@ -195,14 +195,14 @@ def write_recommended_gc_sequences(one_end_gc_q3, sequences, recommended_removal
     """写入推荐去除的GC序列到文件"""
     try:
         with open(recommended_removal_file, 'r') as rec_file:
-            recommended_ids = {line.strip() for line in rec_file if line.strip()}  # 读取推荐去除的ID
+            recommended_ids = {line.strip() for line in rec_file if line.strip()} 
 
         with open(output_gc_file, 'w') as gc_output:
             for tag in recommended_ids:
                 if tag in sequences:
                     gc_content = calculate_gc_content(sequences[tag])
                     if gc_content > one_end_gc_q3:
-                        gc_output.write(f">{tag}\n{sequences[tag]}\n")  # 输出大于Q3值的序列
+                        gc_output.write(f">{tag}\n{sequences[tag]}\n") 
     except Exception as e:
         raise RuntimeError(f"写入推荐去除的GC序列时发生错误: {e}")
 
@@ -214,7 +214,34 @@ def process_fasta(fasta_file, output_telomere_file='telomere_output.fasta',
                   output_excess_file=None,  
                   output_excess_summary_file=None,
                   output_recommended_removal_file='base_avg_g_q3.txt',
-                  output_gc_sequences_file='gc_g_q3.txt'):  # 设置输出文件路径
+                  output_gc_sequences_file='gc_g_q3.txt'): 
+
+    sequences = read_fasta(fasta_file)
+    telomere_sequences, non_telomere_sequences, one_end_telomere_sequences, both_ends_telomere_sequences, one_end_excess_counts = extract_telomere_sequences(sequences)
+
+    original_sequence_count = len(sequences)
+    original_total_length = sum(len(seq) for seq in sequences.values())
+
+    write_output(telomere_sequences, output_telomere_file) if telomere_sequences else None
+    write_output(non_telomere_sequences, output_non_telomere_file) if non_telomere_sequences else None
+    if output_one_end_file:
+        write_output(one_end_telomere_sequences, output_one_end_file)
+    if output_both_ends_file:
+        write_output(both_ends_telomere_sequences, output_both_ends_file)
+
+    write_statistics(non_telomere_sequences, telomere_sequences, one_end_telomere_sequences, 
+                     both_ends_telomere_sequences, one_end_excess_counts, 
+                     output_stat_file, original_sequence_count, original_total_length)
+
+def process_fasta_all(fasta_file, output_telomere_file='telomere_output.fasta', 
+                  output_non_telomere_file='non_telomere_output.fasta',
+                  output_one_end_file=None,
+                  output_both_ends_file=None,
+                  output_stat_file='reads_stats.txt',
+                  output_excess_file=None,  
+                  output_excess_summary_file=None,
+                  output_recommended_removal_file='base_avg_g_q3.txt',
+                  output_gc_sequences_file='gc_g_q3.txt'): 
 
     sequences = read_fasta(fasta_file)
     telomere_sequences, non_telomere_sequences, one_end_telomere_sequences, both_ends_telomere_sequences, one_end_excess_counts = extract_telomere_sequences(sequences)
@@ -242,12 +269,10 @@ def process_fasta(fasta_file, output_telomere_file='telomere_output.fasta',
         print_colored(f" >>> 单端端粒序列的GC Q3值为: {one_end_gc_q3:.2f} <<<\n", 'red')
         write_recommended_gc_sequences(one_end_gc_q3, sequences, output_recommended_removal_file, output_gc_sequences_file)
 
+
 def main():
     """主函数，处理命令行参数和程序入口"""
-    #print(script_description)
-
-    parser = argparse.ArgumentParser(description='从FASTA文件中筛选具有端粒和不具有端粒序列。',
-                                     epilog=print_colored('\tVersion : 1.0\n\t更详细的信息请访问: https://mengqy2022.github.io/genomics/telomere/\n','green'))
+    parser = argparse.ArgumentParser(description='从FASTA文件中筛选具有端粒和不具有端粒序列。')
     parser.add_argument('-f', '--fasta_file', type=str, help='输入FASTA文件路径', required=True)
     parser.add_argument('-ot', '--output_telomere_file', type=str, help='输出端粒序列的FASTA文件路径', default='telomere_output.fasta')
     parser.add_argument('-ont', '--output_non_telomere_file', type=str, help='输出非端粒序列的FASTA文件路径', default='non_telomere_output.fasta')
@@ -259,10 +284,17 @@ def main():
 
     args = parser.parse_args()
     
-    process_fasta(args.fasta_file, args.output_telomere_file,
-                  args.output_non_telomere_file, args.output_one_end_file,
-                  args.output_both_ends_file, args.output_stat_file, 
-                  args.output_excess_file, args.output_excess_summary_file)
+    # 检查是否有额外的输出参数，决定调用哪个处理函数
+    if args.output_one_end_file is None and args.output_both_ends_file is None and args.output_excess_file is None and args.output_excess_summary_file is None:
+        # 仅运行process_fasta
+        process_fasta(args.fasta_file, args.output_telomere_file,
+                      args.output_non_telomere_file, args.output_stat_file)
+    else:
+        # 运行process_fasta_all
+        process_fasta_all(args.fasta_file, args.output_telomere_file,
+                          args.output_non_telomere_file, args.output_one_end_file,
+                          args.output_both_ends_file, args.output_stat_file, 
+                          args.output_excess_file, args.output_excess_summary_file)
 
     current_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     

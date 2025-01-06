@@ -109,7 +109,7 @@ mkdir -p "$path/miniprot"
 
 miniprot -t "$NUM_THREADS" --gff "$GEN" "$PROT" > "$path/miniprot/miniprot_$OUTPREFIX.gff"
 grep -v "#" "$path/miniprot/miniprot_$OUTPREFIX.gff" > "$path/miniprot/miniprot_$OUTPREFIX\_mod.gff"
-python /data_2/biosoftware/EVidenceModeler-v2.1.0/EvmUtils/misc/miniprot_GFF_2_EVM_GFF3.py \
+python /public/home/wangruanlin/miniconda3/envs/evm/bin/EvmUtils/misc/miniprot_GFF_2_EVM_GFF3.py \
     "$path/miniprot/miniprot_$OUTPREFIX\_mod.gff" > "$path/miniprot/miniprot_$OUTPREFIX\_mod_evm.gff3"
 
 echo -e "\n [蛋白证据准备完成] \n"
@@ -120,16 +120,18 @@ mkdir -p "$path/augusuts"
 
 blat -noHead "$GEN" "$PAS" "$path/augusuts/Augustus_est.psl"
 
-/data_2/biosoftware/Augustus/scripts/filterPSL.pl --best "$path/augusuts/Augustus_est.psl" > "$path/augusuts/Augustus_est.f.psl"
-/data_2/biosoftware/Augustus/scripts/blat2hints.pl --nomult --in="$path/augusuts/Augustus_est.f.psl" --out="$path/augusuts/Augustus_hints.est.gff"
+source /public/home/wangruanlin/miniconda3/bin/activate augustus
 
-augustus --gff3=on --species="$SPE" --protein=on --codingseq=on \
+/public/home/wangruanlin/miniconda3/envs/augustus/bin/filterPSL.pl --best "$path/augusuts/Augustus_est.psl" > "$path/augusuts/Augustus_est.f.psl"
+/public/home/wangruanlin/miniconda3/envs/augustus/bin/blat2hints.pl --nomult --in="$path/augusuts/Augustus_est.f.psl" --out="$path/augusuts/Augustus_hints.est.gff"
+
+/public/home/wangruanlin/miniconda3/envs/augustus/bin/augustus --gff3=on --species="$SPE" --protein=on --codingseq=on \
     --outfile="$path/augusuts/augustus_$OUTPREFIX.gff3" "$GEN" --translation_table="$TAB" --hintsfile="$path/augusuts/Augustus_hints.est.gff" \
     --extrinsicCfgFile=/data/wangruanlin/software/augustus-3.0.2/config/extrinsic/extrinsic.RM.E.W.cfg
 
+source /public/home/wangruanlin/miniconda3/bin/activate evm
 awk '$3=="gene" || $3=="CDS" || $3=="transcript" {print}' "$path/augusuts/augustus_$OUTPREFIX.gff3" > "$path/augusuts/augustus_$OUTPREFIX\_mod.gff3"
-
-/data_2/biosoftware/EVidenceModeler-v2.1.0/EvmUtils/misc/augustus_GFF3_to_EVM_GFF3.pl "$path/augusuts/augustus_$OUTPREFIX\_mod.gff3" \
+/public/home/wangruanlin/miniconda3/envs/evm/bin/EvmUtils/misc/augustus_GFF3_to_EVM_GFF3.pl "$path/augusuts/augustus_$OUTPREFIX\_mod.gff3" \
     > "$path/augusuts/augustus_$OUTPREFIX\_mod_evm.gff3"
 
 echo -e "\n [从头预测结束] \n"
@@ -153,12 +155,14 @@ EVidenceModeler --sample_id "$OUTPREFIX" \
 cd ../
 echo -e "\n [整合结束] \n"
 
+
 # 获取蛋白序列
 echo -e "\n [获得蛋白序列中......] \n"
 
+source /public/home/wangruanlin/miniconda3/bin/activate
 gffread "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3" -g "$GEN" -y "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3.faa"
 
-python /home/mengqingyao/Script_bioinformatics/stop_codon_replace.py "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3.faa" > "$OUTPREFIX.faa"
+python /public/home/wangruanlin/mqy/script/Script_bioinformatics/stop_codon_replace.py "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3.faa" > "$OUTPREFIX.faa"
 
 echo "   运行结束！"
 echo "   输出结果文件为: $OUTPREFIX.faa"

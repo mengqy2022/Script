@@ -1,50 +1,56 @@
-#!/usr/bin/env python3
-# coding: utf-8
 """
-
 .. module:: generate_plot
-   :synopsis: This module produces a graphic summary for BUSCO runs based on short summary files
+   :synopsis: 本模块基于短摘要文件生成 BUSCO 运行的图形总结
 .. versionadded:: 2.0.0
 .. versionchanged:: 4.0.0
 
- This module produces a graphic summary for BUSCO runs based on short summary files
+ 本模块基于短摘要文件生成 BUSCO 运行的图形总结
 
-(``python3 generate_plot.py -h`` and user guide for details on how to do it)
+(``python3 generate_plot.py -h`` 和用户指南详细说明如何操作)
 
-Place the short summary files of all BUSCO runs you would like to see on the figure a single folder.
-Keep the file named as follow: ``short_summary.[generic|specific].dataset.label.txt``, 'label' being used in the plot as species name
+将所有希望在图中显示的 BUSCO 运行的短摘要文件放置在同一文件夹中。
+文件命名格式为: ``short_summary.[generic|specific].dataset.label.txt``, 'label' 在图中用作物种名称
 
-This tool produces the R code of the figure and uses ggplot2 (2.2.0+). If your system is able to run R, this script
-automatically runs it.
+该工具生成图形的 R 代码并使用 ggplot2 (2.2.0+). 如果您的系统能够运行 R，本脚本会自动执行它。
 
-You can find both the resulting R script for customisation and the figure in the working directory.
+您可以在工作目录中找到自定义的 R 脚本和生成的图形。
 
-Copyright (c) 2016-2023, Evgeny Zdobnov (ez@ezlab.org)
-Licensed under the MIT license. See LICENSE.md file.
+版权所有 (c) 2016-2023, Evgeny Zdobnov (ez@ezlab.org)
+根据 MIT 许可证授权。请参阅 LICENSE.md 文件。
 
 """
 
+# 导入所需的库
 import os
 import sys
 import time
+#  traceback 模块提供了一系列的函数，用于处理和格式化异常信息。当程序发生异常时，可以使用该模块获取详细的错误信息，这对调试和日志记录非常有帮助。
 import traceback
 import argparse
+#  使用 subprocess 模块，程序可以启动外部命令行工具，运行操作系统的命令，或执行任意的脚本。
+# 这对于需要与外部程序交互的场景非常有用，比如绘图、数据分析等。
 import subprocess
+#  glob 模块的主要功能是支持 Unix 风格的路径名模式匹配。它可以用于查找符合指定模式的文件名
 import glob
+#  shutil 是 Python 标准库中的一个模块，主要用于文件和文件集合的高阶操作，如复制文件、移动文件等。
+# which 是 shutil 模块中的一个函数，用于查找可执行文件的位置。
 from shutil import which
+#  RawTextHelpFormatter 是 argparse 中的一个帮助格式化器类。这个类会使得在命令行使用 -h 或 --help 查看帮助信息时，显示原始的文本格式，而不会对文本进行自动换行或格式化。
+# 这意味着，用户在编写帮助文本时，可以精确控制格式，比如保持段落、空行等。
 from argparse import RawTextHelpFormatter
+#  logging是Python内置的一个模块，专门用于记录和管理日志。
 import logging
 from busco.BuscoLogger import BuscoLogger
 
-#: working directory
+#: 工作目录
 _plot_dir = ""
-#: r file name
+#: R 文件名
 _r_file = "busco_figure.R"
 
-# to avoid running R
+# 为避免运行 R
 _no_r = False
 
-#: Get an instance of _logger for keeping track of events
+#: 获取 _logger 的实例以跟踪事件
 _logger = BuscoLogger.get_logger(__name__)
 
 RCODE = (
@@ -87,7 +93,7 @@ RCODE = (
     "my_species <- c%s2\n"
     "my_species <- factor(my_species)\n"
     "my_species <- factor(my_species,levels(my_species)[c(length(levels(my_species)):1)]) "
-    "# reorder your species here just by changing the values in the vector :\n"
+    "# 通过改变向量中的值重新排序物种:\n"
     "my_percentage <- c%s3\n"
     "my_values <- c%s4\n"
     "\n"
@@ -156,8 +162,8 @@ RCODE = (
 
 def _check_wd():
     """
-    This function checks that the working directory exists with write permission
-    :raises SystemExit: if the folder is absent or the user has no write permission
+    此函数检查工作目录是否存在且具有写入权限
+    :raises SystemExit: 如果文件夹缺失或用户没有写入权限
     """
     if not os.path.exists(_plot_dir):
         _logger.warning("Impossible to read %s" % _plot_dir)
@@ -169,8 +175,8 @@ def _check_wd():
 
 def _write_r_code(data):
     """
-    This function write the R code in its own file
-    :param data: the data loaded from the run folders used to generate the R file
+    此函数将 R 代码写入自己的文件中
+    :param data: 从运行文件夹加载的数据，用于生成 R 文件
     :type data: dict
     """
     r_file = open("%s%s" % (_plot_dir, _r_file), "w")
@@ -184,11 +190,11 @@ def _write_r_code(data):
 
 def _run_r_code():
     """
-    This function runs the R code after it was generated
-    It first checks that ggplot2 related libraries are present
+    此函数在生成 R 代码后运行它
+    它首先检查 ggplot2 相关库是否存在
     """
-    # first try to load the two required package and warn the user if an error occur
-    # package ggplot2
+    # 首先尝试加载两个所需的包，并在发生错误时通知用户
+    # 包 ggplot2
     need_to_exit = False
     ggplot2 = subprocess.Popen(
         ["R", "-e", "library(ggplot2)", "--quiet"],
@@ -203,7 +209,7 @@ def _run_r_code():
         )
         need_to_exit = True
 
-    # package grid
+    # 包 grid
     grid = subprocess.Popen(
         ["R", "-e", "library(grid)", "--quiet"],
         stderr=subprocess.PIPE,
@@ -219,9 +225,9 @@ def _run_r_code():
         need_to_exit = True
 
     if need_to_exit:
-        return None  # do not run the code, but no need to stop the execution
+        return None  # 不运行代码，但无需停止执行
 
-    # run R
+    # 运行 R
     if which("Rscript") is not None:
         r_script = ["Rscript", "%s%s" % (_plot_dir, _r_file)]
         p = subprocess.Popen(
@@ -239,7 +245,7 @@ def _run_r_code():
 
 def _set_args():
     """
-    This function sets the parameters provided by the user
+    此函数设置用户提供的参数
     """
     parser = argparse.ArgumentParser(
         description="BUSCO plot generation tool.\n"
@@ -263,31 +269,32 @@ def _set_args():
         metavar="PATH",
         required=True,
         dest="working_directory",
-        help="Define the location of your working directory",
+        help="定义工作目录的位置",
     )
     optional.add_argument(
         "-rt",
         "--run_type",
         required=False,
         dest="run_type",
-        help="type of summary to use, `generic` or `specific`",
+        help="要使用的摘要类型，`generic` 或 `specific`",
     )
     optional.add_argument(
         "--no_r",
-        help="To avoid to run R. It will just create the R script file in the working directory",
+        help="为了避免运行 R. 它只会在工作目录中创建 R 脚本文件",
         action="store_true",
         dest="no_r",
     )
     optional.add_argument(
         "-q",
         "--quiet",
-        help="Disable the info logs, displays only errors",
+        help="禁用信息日志，仅显示错误",
         action="store_true",
         dest="quiet",
     )
     optional.add_argument(
-        "-h", "--help", action="help", help="Show this help message and exit"
+        "-h", "--help", action="help", help="显示此帮助信息并退出"
     )
+
     args = vars(parser.parse_args())
     if args["quiet"]:
         _logger.setLevel(logging.ERROR)
@@ -303,10 +310,10 @@ def _set_args():
     if args["run_type"]:
         _run_type = args["run_type"]
 
- 
 def _load_data():
     """
-    :return:
+    加载数据并返回
+    :return: 包含物种、值和百分比的数据字典
     """
     data = {"species": [], "values": [], "percentages": [], "species_tmp": []}
     datasets = set([])
@@ -342,7 +349,7 @@ def _load_data():
             _logger.info("Loaded %s successfully" % f)
         except IOError:
             _logger.warning("Impossible to use the file %s" % f)
-    # if only one dataset, remove it from species label
+    # 如果只有一个数据集，从物种标签中移除它
     if len(datasets) == 1:
         data["species"] = [label.split(".")[0] for label in data["species_tmp"]]
     else:
@@ -358,10 +365,10 @@ def _load_data():
 
 def main():
     """
-    This function produces a figure with all BUSCO runs present in the current folder
+    此函数生成当前文件夹中所有 BUSCO 运行的图形
     """
 
-    _set_args()  # Fetch the params provided by the user
+    _set_args()  # 获取用户提供的参数
     start_time = time.time()
 
     try:
@@ -371,17 +378,17 @@ def main():
             % (time.strftime("%m/%d/%Y %H:%M:%S"))
         )
 
-        # check working directory
+        # 检查工作目录
         _check_wd()
-        # load data
+        # 加载数据
         _logger.info("Load data ...")
         data = _load_data()
 
-        # write R code
+        # 写入 R 代码
         _logger.info("Generate the R code ...")
         _write_r_code(data)
 
-        # run R code
+        # 运行 R 代码
         if not _no_r:
             _logger.info("Run the R code ...")
             _run_r_code()
@@ -428,6 +435,6 @@ def main():
         raise SystemExit()
 
 
-# Entry point
+# 入口点
 if __name__ == "__main__":
     main()
