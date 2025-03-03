@@ -67,7 +67,7 @@ class FastaRenamer:
         self.extract_names_from_folder()
 
         for i, file_name in enumerate(os.listdir(self.folder)):
-            if file_name.endswith('.fasta') or file_name.endswith('.fa') or file_name.endswith('.faa'):
+            if file_name.endswith('.fasta') or file_name.endswith('.fa') or file_name.endswith('.faa') or file_name.endswith('.fna'):
                 file_path = os.path.join(self.folder, file_name)
                 if i < len(self.names):
                     base_name = self.names[i]

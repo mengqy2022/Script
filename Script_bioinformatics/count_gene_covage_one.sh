@@ -23,7 +23,7 @@ fi
 # find ./prokka -name "*\.ffn" -exec cp {} ./cds_databas \;
 
 pwd=$(pwd)
-echo "Current directory: $pwd"
+echo -e "\nCurrent directory: $pwd\n"
 
 if [ ! -d $1 ] ;then
     echo "`date '+[error] %D %T'`"
@@ -48,16 +48,16 @@ fi
 cd $pwd/$1
 
 pwd_1=$(pwd)
-echo "Current directory: $pwd_1"
+echo -e "Current directory: $pwd_1\n"
 
 for genomics in $(ls $pwd/$1);do
     seqkit stats -T $genomics | csvtk cut -t -f 1,5 | csvtk del-header >> $pwd/genomics.stats
 done
 
-pwd_2=$(pwd)
-echo "Current directory: $pwd_2"
-
 cd $pwd/$2
+
+pwd_2=$(pwd)
+echo -e "Current directory: $pwd_2\n"
 
 for protein in $(ls $pwd/$2);do
     seqkit stats -T $protein | csvtk cut -t -f 1,5 | csvtk del-header >> $pwd/protein.stats

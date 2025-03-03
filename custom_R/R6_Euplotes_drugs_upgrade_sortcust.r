@@ -122,7 +122,7 @@ PlottingClass <- R6Class("PlottingClass",
     },
 
     # 绘制箱线图
-    boxplot_pvalue = function(step_increase, days_col = "Days",ref_group = "Control", fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
+    boxplot_pvalue = function(step_increase, days_col = "Days", ref_group = "Control", fill_color = c("red", "green", "#9ED8DB", "#3498DB")) {
       
       max_days <- max(self$data[[days_col]], na.rm = TRUE)
       
@@ -134,7 +134,11 @@ PlottingClass <- R6Class("PlottingClass",
         add_significance(p.col = "p.adj") %>%
         add_xy_position(step.increase = step_increase)
       
-      ggplot(Record_1, aes(x = Concentration, y = Totals)) +
+      # 检查 Totals 是否都大于 0
+      all_positive <- all(Record_1$Totals > 0)
+      
+      # 创建 ggplot 对象
+      p <- ggplot(Record_1, aes(x = Concentration, y = Totals)) +
         stat_boxplot(geom = "errorbar", position = position_dodge(width = 0.4), width = 0.4) +
         geom_boxplot(aes(fill = Concentration), position = position_dodge(width = 0.1), outlier.shape = NA) +
         geom_jitter(width = 0.2, shape = 21, color = "grey20", size = 2, fill = "white", stroke = 1, show.legend = FALSE) +
@@ -142,7 +146,6 @@ PlottingClass <- R6Class("PlottingClass",
         ylab("Cell numbers") +
         scale_fill_manual(values = fill_color) +
         scale_x_discrete(guide = "prism_bracket") +
-        scale_y_continuous(guide = "prism_offset_minor") +
         stat_pvalue_manual(df_p_val, label = "p.adj.signif", 
                           label.size = 4, 
                           hide.ns = FALSE, 
@@ -152,6 +155,16 @@ PlottingClass <- R6Class("PlottingClass",
               plot.title = element_text(hjust = .5), 
               legend.position = "top") +
         labs(title = "Growth variation")
+      
+      # 根据检查结果调整 y 轴
+      if (all_positive) {
+        p <- p + scale_y_continuous(limits = c(0, NA), guide = "prism_offset_minor")
+      } else {
+        p <- p + scale_y_continuous(guide = "prism_offset_minor")
+      }
+      
+      # 打印或绘制图形
+      print(p)
     }
   )
 )

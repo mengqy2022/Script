@@ -59,96 +59,72 @@ while getopts "hg:p:a:r:w:s:c:t:o:n:" opt; do
 done
 
 # 检查必要参数
-if [ -z $PROT ]
-then
-    echo -e "       [请输入-h，查看帮助文档！]       "
-    echo -e "[除了具有默认的参数，其余参数都必需设置]"
-    echo
-    exit 1
-fi
+check_required_param() {
+    if [ -z "$1" ]; then
+        echo -e "       [请输入-h，查看帮助文档！]       "
+        echo -e "[除了具有默认的参数，其余参数都必需设置]"
+        echo
+        exit 1
+    fi
+}
 
-if [ -z $GEN ]
-then
-    echo -e "       [请输入-h，查看帮助文档！]       "
-    echo -e "[除了具有默认的参数，其余参数都必需设置]"
-    echo
-    exit 1
-fi
-
-if [ -z $PASA ]
-then
-    echo -e "       [请输入-h，查看帮助文档！]       "
-    echo -e "[除了具有默认的参数，其余参数都必需设置]"
-    echo
-    exit 1
-fi
-
-if [ -z $PAS ]
-then
-    echo -e "       [请输入-h，查看帮助文档！]       "
-    echo -e "[除了具有默认的参数，其余参数都必需设置]"
-    echo
-    exit 1
-fi
-
-if [ -z $WEI ]
-then
-    echo -e "       [请输入-h，查看帮助文档！]       "
-    echo -e "[除了具有默认的参数，其余参数都必需设置]"
-    echo
-    echo -e "  你真是个天才  "
-    exit 1
-fi
+check_required_param "$PROT"
+check_required_param "$GEN"
+check_required_param "$PASA"
+check_required_param "$PAS"
+check_required_param "$WEI"
 
 # 获取当前路径
 path=$(pwd)
 
 # 创建miniprot目录并运行miniprot
 echo -e "\n [运行miniprot] \n"
-mkdir -p "$path/miniprot"
+miniprot_dir="$path/miniprot"
+mkdir -p "$miniprot_dir"
 
-miniprot -t "$NUM_THREADS" --gff "$GEN" "$PROT" > "$path/miniprot/miniprot_$OUTPREFIX.gff"
-grep -v "#" "$path/miniprot/miniprot_$OUTPREFIX.gff" > "$path/miniprot/miniprot_$OUTPREFIX\_mod.gff"
+miniprot -t "$NUM_THREADS" --gff "$GEN" "$PROT" > "$miniprot_dir/miniprot_$OUTPREFIX.gff"
+grep -v "#" "$miniprot_dir/miniprot_$OUTPREFIX.gff" > "$miniprot_dir/miniprot_${OUTPREFIX}_mod.gff"
 python /data_2/biosoftware/EVidenceModeler-v2.1.0/EvmUtils/misc/miniprot_GFF_2_EVM_GFF3.py \
-    "$path/miniprot/miniprot_$OUTPREFIX\_mod.gff" > "$path/miniprot/miniprot_$OUTPREFIX\_mod_evm.gff3"
+    "$miniprot_dir/miniprot_${OUTPREFIX}_mod.gff" > "$miniprot_dir/miniprot_${OUTPREFIX}_mod_evm.gff3"
 
 echo -e "\n [蛋白证据准备完成] \n"
 
 # 创建augustus目录并运行Augusuts
 echo -e "\n [运行Augusuts] \n"
-mkdir -p "$path/augusuts"
+augustus_dir="$path/augusuts"
+mkdir -p "$augustus_dir"
 
-blat -noHead "$GEN" "$PAS" "$path/augusuts/Augustus_est.psl"
+blat -noHead "$GEN" "$PAS" "$augustus_dir/Augustus_est.psl"
 
-/data_2/biosoftware/Augustus/scripts/filterPSL.pl --best "$path/augusuts/Augustus_est.psl" > "$path/augusuts/Augustus_est.f.psl"
-/data_2/biosoftware/Augustus/scripts/blat2hints.pl --nomult --in="$path/augusuts/Augustus_est.f.psl" --out="$path/augusuts/Augustus_hints.est.gff"
+/data_2/biosoftware/Augustus/scripts/filterPSL.pl --best "$augustus_dir/Augustus_est.psl" > "$augustus_dir/Augustus_est.f.psl"
+/data_2/biosoftware/Augustus/scripts/blat2hints.pl --nomult --in="$augustus_dir/Augustus_est.f.psl" --out="$augustus_dir/Augustus_hints.est.gff"
 
 augustus --gff3=on --species="$SPE" --protein=on --codingseq=on \
-    --outfile="$path/augusuts/augustus_$OUTPREFIX.gff3" "$GEN" --translation_table="$TAB" --hintsfile="$path/augusuts/Augustus_hints.est.gff" \
-    --extrinsicCfgFile=/data/wangruanlin/software/augustus-3.0.2/config/extrinsic/extrinsic.RM.E.W.cfg
+    --outfile="$augustus_dir/augustus_${OUTPREFIX}_mod.gff3" "$GEN" --translation_table="$TAB" --hintsfile="$augustus_dir/Augustus_hints.est.gff" \
+    --extrinsicCfgFile=/home/mengqingyao/miniconda3/envs/augustus/config/extrinsic/extrinsic.M.RM.E.W.cfg
 
-awk '$3=="gene" || $3=="CDS" || $3=="transcript" {print}' "$path/augusuts/augustus_$OUTPREFIX.gff3" > "$path/augusuts/augustus_$OUTPREFIX\_mod.gff3"
-
-/data_2/biosoftware/EVidenceModeler-v2.1.0/EvmUtils/misc/augustus_GFF3_to_EVM_GFF3.pl "$path/augusuts/augustus_$OUTPREFIX\_mod.gff3" \
-    > "$path/augusuts/augustus_$OUTPREFIX\_mod_evm.gff3"
+awk '$3=="gene" || $3=="CDS" || $3=="transcript" {print}' "$augustus_dir/augustus_${OUTPREFIX}_mod.gff3" > "$augustus_dir/augustus_${OUTPREFIX}_mod_evm.gff3"
 
 echo -e "\n [从头预测结束] \n"
 
 # 创建EVidenceModeler目录并运行EVidenceModeler
 echo -e "\n [运行EVidenceModeler] \n"
-mkdir -p "$path/EVidenceModeler" && cd "$path/EVidenceModeler"
+evidence_modeler_dir="$path/EVidenceModeler"
+mkdir -p "$evidence_modeler_dir" && cd "$evidence_modeler_dir"
+
+source /home/mengqingyao/miniconda3/bin/activate evidencemodeler
 
 EVidenceModeler --sample_id "$OUTPREFIX" \
-                   --genome "$path/$GEN" \
-                   --weights "$path/$WEI" \
-                   --gene_predictions "$path/augusuts/augustus_$OUTPREFIX\_mod_evm.gff3" \
-                   --transcript_alignments "$path/$PASA" \
-                   --protein_alignments "$path/miniprot/miniprot_$OUTPREFIX\_mod_evm.gff3" \
-                   --segmentSize 100000 \
-                   --overlapSize 10000  \
-                   --stop_codons "$CODE" \
-                   --min_intron_length 15 \
-                   --CPU "$NUM_THREADS"
+    --genome "$path/$GEN" \
+    --weights "$path/$WEI" \
+    --gene_predictions "$augustus_dir/augustus_${OUTPREFIX}_mod_evm.gff3" \
+    --transcript_alignments "$path/$PASA" \
+    --protein_alignments "$miniprot_dir/miniprot_${OUTPREFIX}_mod_evm.gff3" \
+    --segmentSize 100000 \
+    --overlapSize 10000 \
+    --stop_codons "$CODE" \
+    --min_intron_length 15 \
+    --CPU "$NUM_THREADS"
 
 cd ../
 echo -e "\n [整合结束] \n"
@@ -156,9 +132,9 @@ echo -e "\n [整合结束] \n"
 # 获取蛋白序列
 echo -e "\n [获得蛋白序列中......] \n"
 
-gffread "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3" -g "$GEN" -y "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3.faa"
+gffread "$evidence_modeler_dir/$OUTPREFIX.EVM.gff3" -g "$GEN" -y "$evidence_modeler_dir/$OUTPREFIX.EVM.gff3.faa"
 
-python /home/mengqingyao/Script_bioinformatics/stop_codon_replace.py "$path/EVidenceModeler/$OUTPREFIX.EVM.gff3.faa" > "$OUTPREFIX.faa"
+python /home/mengqingyao/Script_bioinformatics/stop_codon_replace.py "$evidence_modeler_dir/$OUTPREFIX.EVM.gff3.faa" > "$OUTPREFIX.faa"
 
 echo "   运行结束！"
 echo "   输出结果文件为: $OUTPREFIX.faa"

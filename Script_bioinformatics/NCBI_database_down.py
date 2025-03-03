@@ -47,7 +47,7 @@ def download_database(metadata_url, output_dir):
     data = response.json()
     files = data.get("files", [])
     os.makedirs(output_dir, exist_ok=True)
-    
+
     file_links_path = os.path.join(output_dir, "file_links.txt")
     with open(file_links_path, "w") as f:
         f.write("\n".join(files) + "\n")
@@ -60,27 +60,24 @@ def download_database(metadata_url, output_dir):
         f.write("\n".join(files_with_https) + "\n")
     print(f"{metadata_url} 的文件链接已成功写入 {file_links_path}。")
 
-
-
     print(f"开始下载 {metadata_url} 的文件...")
     # 假设 args.output_dir 是你传入的输出目录
     output = execute_command(["wget", "-c", "--retry-connrefused", "--tries", "0", "-t", "0", "-P", output_dir, "-i", file_links_path])
 
-    
     if output is not None:
         print("下载输出：")
         print(output)  # 输出下载日志
-        
+
         total_files = len(files)
         downloaded_files = output.count("100%")
-        
+
         if downloaded_files == total_files:
             print("所有文件下载完成。")
             return True
         else:
             print(f"下载完成的文件数量与预期不符：{downloaded_files}/{total_files}。")
             return False
-            
+
     return False
 
 def download_additional_file(file_url, output_dir):
@@ -88,7 +85,7 @@ def download_additional_file(file_url, output_dir):
 
     print(f"开始下载 {file_url}...")
     output = execute_command(["wget", "-c", "--retry-connrefused", "--tries", "0", file_url,"-P", output_dir])
-    
+
     if output and "100%" in output:
         print(f"{file_url} 下载完成。")
         return True

@@ -8,7 +8,7 @@ pg.PAUSE = 1
 
 name = '小玲犟'
 msg = '给老子，我看看能发送不'
-send_time = '15:58:00'
+send_time = '16:54:00'
 
 
 def main():

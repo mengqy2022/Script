@@ -35,7 +35,7 @@ class FastaProcessor:
             # 假设序列名称格式为 "part1_part2"
             name_parts = record.id.split('_', 3)
             if len(name_parts) > 1:
-                first_part = name_parts[2]  # 第一部分
+                first_part = name_parts[0]  # 第一部分
                 self.sequences_dict[first_part].append(record)  # 将记录对象添加到对应的列表中
 
     def _write_output_files(self):
