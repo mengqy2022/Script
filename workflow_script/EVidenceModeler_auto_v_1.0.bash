@@ -28,6 +28,7 @@ while getopts "hg:p:a:r:w:s:c:t:o:n:" opt; do
         echo
         echo -e "   脚本说明: [真核生物基因预测，将多个预测结果整合] \n\n             [不运行PASA，自动生成augustus和miniprot预测证据。]"
         echo -e "使用说明: bash $name -g genome.fasta -a assemblies.fasta -p PASA_result.gff3 -c TAA,TAG -r related_species.faa \n                                         -w weights.txt -s euplotes -t 10 -o out_prefix -n 5"
+        echo -e "详细使用：https://mengqy2022.github.io/genomics/ciliate-prediction/\n"
         echo -e "\t-g: 输入预测物种基因组 [.fasta]"
         echo -e "\t-p: PASA整合的结果 [.gff3]"
         echo -e "\t-a: PASA整合的结果 [.fasta]"

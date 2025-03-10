@@ -1,9 +1,6 @@
 #!/bin/bash
-# by 运维朱工
-# site：bash.lutixia.cn
+# mqy
 ####################################
-
-
 
 # 获取IP地址和主机名
 IP_ADDR=$(hostname -I | cut -d' ' -f1)
@@ -25,6 +22,7 @@ memory_info() {
     echo -e "\t------------------------------------------------"
     echo -e "\t`free -h | awk '/Mem/{printf "%-10s %s","内存总容量:",$2}'`"
     echo -e "\t`free -h | awk '/Mem/{printf "%-10s %s","内存空闲容量:",$4}'`"
+    echo -e "\t`free -h | awk '/Mem/{printf "%-10s %s","内存使用容量:",$3}'`"
     echo -e "\t`free -h | awk '/Mem/{printf "%-10s %s","内存缓存:",$6}'`"
     echo
 }
@@ -32,9 +30,9 @@ memory_info() {
 hard_disk() {
     echo -e "\t\t\t硬盘的使用情况"
     echo -e "\t------------------------------------------------"
-    echo -e "\t硬盘总容量:`df -h / | awk '{print "\t" $2}' | grep -v "Size"`"
-    echo -e "\t硬盘使用率:`df -h / | awk '{print "\t" $5}' | grep -v "Use%"`"
-    echo -e "\t硬盘空闲率:`df -h / | awk '{print "\t" $4}' | grep -v "Avail"`"
+    echo -e "\t硬盘总容量:`df -h / | awk '{print "\t" $2}' | grep -v "容量"`"
+    echo -e "\t硬盘使用率:`df -h / | awk '{print "\t" $5}' | grep -v "已用%"`"
+    echo -e "\t硬盘空闲率:`df -h / | awk '{print "\t" $4}' | grep -v "可用"`"
     echo
 }
 
@@ -58,7 +56,8 @@ echo -e "\tUptime       : $(uptime -p)"
 echo -e "\tUptime       : $(uptime -s)"
 echo -e "\tIP addr      : $IP_ADDR"
 echo -e "\tHostname     : $HOSTNAME"
-echo -e "\tCpu          : $(lscpu | grep "Model name:" | sed 's/Model name:\s*//')"
+echo -e "\tCpu modle    : $(lscpu | grep "型号：" | sed "s/型号：\s*//")"
+echo -e "\tCpu total    : $(lscpu | grep "CPU(s):" | sed "s/CPU(s):\s*//" | xargs)"
 echo -e "\tMemory       : $(free -h | awk '/^Mem:/ { print $3 "/" $2 }')"
 echo -e "\tSWAP         : $(free -h | awk '/^Swap:/ { print $3 "/" $2 }')"
 echo -e "\tUsers Logged : $(who | wc -l) users"
