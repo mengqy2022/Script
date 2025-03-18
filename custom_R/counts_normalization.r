@@ -3,8 +3,7 @@ suppressMessages(library(stringr))
 suppressMessages(library(dplyr))
 suppressMessages(library(tibble))
 suppressMessages(library(edgeR))
-suppressMessages(library(argparser)) #https://github.com/cran/argparser
-
+suppressMessages(library(argparser))
 
 # 参数设置
 p <- arg_parser("Merge featureCounts(linux version) and calculate FPKM/TPM")
@@ -23,7 +22,7 @@ output_path <- argv$output_path
 output_prefix <- argv$prefix
 
 # 代码主体
-file_name <- dir(path = path,pattern = pattern)
+file_name <- dir(path = path, attern = pattern)
 file <- paste0(path,"/",file_name)
 
 # merge all count matrix

@@ -214,5 +214,3 @@ sort_size <- function(data) {
   factor_sort <- trimws(as.character(unique(levels(factor_sort))))
   return(factor_sort)
 }
-
-

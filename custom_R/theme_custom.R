@@ -3,7 +3,7 @@
 #  mqy
 
 
-theme_custom <- function (base_size = 12, base_family = "Arial") {
+theme_custom_1 <- function (base_size = 12, base_family = "Arial") {
   
   half_line <- base_size/2
   
@@ -105,4 +105,50 @@ theme_custom <- function (base_size = 12, base_family = "Arial") {
     plot.margin = margin(base_size, base_size, base_size, base_size),
     complete = TRUE
   )
+}
+
+theme_custom_2 <- theme_classic() +
+  theme(axis.title.x = element_blank(),
+        legend.position = "none", # 删除图例
+        axis.text.x = element_text(size=10,angle=70,hjust=1),
+        axis.text.y = element_text(size=10),
+        panel.grid.major.y = element_line(color=1,size=0.4,linetype=2),
+        panel.grid.minor.y = element_line(color="black",size=0.25,linetype=3),
+        strip.text = element_text(size = 12),
+        strip.placement = 'outside'
+  )
+
+theme_custom_3 <- theme_prism( border = TRUE,base_size = 5)+
+  theme(strip.text.x= element_text(size = 8),
+        ##'@X轴和Y轴字体标题大小
+        title = element_text(size = 8),
+        legend.box.spacing = unit(1,"cm"),
+        ##'@右上标签字体大小
+        legend.text = element_text(size = 6),
+        ##'@右上标签标题大小
+        legend.title = element_text(size = 8),
+        ##'@X轴和Y轴字体大小
+        axis.text.y = element_text(size = 6, angle = 0, vjust = 0.2),
+        axis.text.x = element_text(size = 6,angle = 45),
+        panel.grid = element_line(color = "gray",
+                                  linewidth = 0.15,
+                                  linetype = 2),
+        panel.spacing = unit(1, "lines"),
+        plot.caption = element_text(size = 8)
+  )
+
+theme_custom_4 <- function(){
+  theme_test() +
+    theme(axis.title.x = element_blank(),
+          axis.line = element_line(color = "#3D4852"),
+          axis.ticks = element_line(color = "#3D4852"),
+          panel.grid.major.y = element_line(color = "#DAE1E7"),
+          panel.grid.major.x = element_blank(),
+          plot.margin = unit(rep(0.2,4),"cm"),
+          axis.text = element_text(size = 10, color = "#22292F"),
+          axis.title = element_text(size = 10, hjust = 1),
+          axis.title.y = element_blank(),
+          axis.text.y = element_text(margin = margin(r = 5)),
+          axis.text.x = element_text(margin = margin(t = 5)),
+          legend.position = "non")
 }
