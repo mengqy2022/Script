@@ -107,28 +107,32 @@ fi
 
 mkdir ../remove_pseudogene && cd ../remove_pseudogene
 
-# for i in `cat ../$FILENAME` ; do 
-#     cat ../prokka/${i}_prokka/${i}.ffn | grep ">" | cut -c 2- | cut -d " " -f 1 > ${i}_cds.ids
-#     awk '{if(match($0,"old_locus_tag=")) {print substr($0,RSTART+RLENGTH) }}' ../pseudogene/${i}_pseudos.gff \
-#         | sed 's/,/\t/g' | awk '{print $1}' | sed '/^$/d' >> ${i}_pseudofene.ids && comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) > ${i}_remove.ids && \
-#     python3 /home/mengqingyao/Script_mqy/get_ids_fasta.py ../prokka/${i}_prokka/${i}.faa ${i}_remove.ids ${i}_remove_ids.faa && \
-#     python3 /home/mengqingyao/Script_mqy/get_ids_fasta.py ../prokka/${i}_prokka/${i}.ffn ${i}_remove.ids ${i}_remove_ids.ffn
-# done
+for i in `cat ../$FILENAME` ; do 
+    cat ../prokka/${i}_prokka/${i}.ffn | grep ">" | cut -c 2- | cut -d " " -f 1 > ${i}_cds.ids
+    awk '{if(match($0,"old_locus_tag=")) {print substr($0,RSTART+RLENGTH) }}' ../pseudogene/${i}_pseudos.gff \
+        | sed 's/,/\t/g' | awk '{print $1}' | sed '/^$/d' >> ${i}_pseudofene.ids && comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) > ${i}_remove.ids && \
+    seqkit grep -f "${i}_remove.ids" "../prokka/${i}_prokka/${i}.faa" -o > "${i}_remove.faa" || { echo "生成去除假基因后的 faa 文件失败"; exit 1; }
+    seqkit grep -f "${i}_remove.ids" "../prokka/${i}_prokka/${i}.ffn" -o > "${i}_remove.ffn" || { echo "生成去除假基因后的 ffn 文件失败"; exit 1; }
 
-for i in `cat ../$FILENAME` ; do
-    # 提取 CDS 序列的 ID
-    cat ../prokka/${i}_prokka/${i}.ffn | grep ">" | cut -c 2- | cut -d " " -f 1 > ${i}_cds.ids || { echo "提取 CDS 序列 ID 失败"; exit 1; }
-
-    # 提取假基因序列的 ID 并进行处理
-    awk -F'[ =]' '/old_locus_tag/{print $3}' ../pseudogene/${i}_pseudos.gff \
-        | sed 's/,/\t/g' | cut -f 1 \
-        | sed '/^$/d' | sed 's/_1_ign//g' | sort | uniq > ${i}_pseudofene.ids || { echo "提取假基因序列 ID 失败"; exit 1; }
-
-    # 获取去除假基因后的序列
-    comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) | seqkit grep -f - "../prokka/${i}_prokka/${i}.faa" -o > "${i}_remove.faa" || { echo "生成去除假基因后的 faa 文件失败"; exit 1; }
-    comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) | seqkit grep -f - "../prokka/${i}_prokka/${i}.ffn" -o > "${i}_remove.ffn" || { echo "生成去除假基因后的 ffn 文件失败"; exit 1; }
-
+    # python3 /home/mengqingyao/Script_mqy/get_ids_fasta.py ../prokka/${i}_prokka/${i}.faa ${i}_remove.ids ${i}_remove_ids.faa && \
+    # python3 /home/mengqingyao/Script_mqy/get_ids_fasta.py ../prokka/${i}_prokka/${i}.ffn ${i}_remove.ids ${i}_remove_ids.ffn
 done
+
+# 有点问题
+# for i in `cat ../$FILENAME` ; do
+#     # 提取 CDS 序列的 ID
+#     cat ../prokka/${i}_prokka/${i}.ffn | grep ">" | cut -c 2- | cut -d " " -f 1 > ${i}_cds.ids || { echo "提取 CDS 序列 ID 失败"; exit 1; }
+
+#     # 提取假基因序列的 ID 并进行处理
+#     awk -F'[ =]' '/old_locus_tag/{print $3}' ../pseudogene/${i}_pseudos.gff \
+#         | sed 's/,/\t/g' | cut -f 1 \
+#         | sed '/^$/d' | sed 's/_1_ign//g' | sort | uniq > ${i}_pseudofene.ids || { echo "提取假基因序列 ID 失败"; exit 1; }
+
+#     # 获取去除假基因后的序列
+#     comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) | seqkit grep -f - "../prokka/${i}_prokka/${i}.faa" -o > "${i}_remove.faa" || { echo "生成去除假基因后的 faa 文件失败"; exit 1; }
+#     comm -23 <(sort ${i}_cds.ids) <(sort ${i}_pseudofene.ids) | seqkit grep -f - "../prokka/${i}_prokka/${i}.ffn" -o > "${i}_remove.ffn" || { echo "生成去除假基因后的 ffn 文件失败"; exit 1; }
+
+# done
 
 if [ -d "../$OUTPREFIX" ]; then
     rm -rf ../$OUTPREFIX

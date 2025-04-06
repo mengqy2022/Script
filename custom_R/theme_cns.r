@@ -1,5 +1,4 @@
 theme_cns <- function() {
-  
   # 设置整个图片的背景为空，这样即可获得透明背景
   theme(plot.background=element_blank(),
         #  这里设置线的宽度为0.5mm，按理来说0.5mm对应1.415pt，
