@@ -257,7 +257,6 @@ for (i in seq_along(combinations)) {
 valid_combinations <- results[sapply(results, function(x) x$final_biomarkers_count >= 2)]
 
 
-
 # 输出结果 -------------------------------------------------------------------
 if (length(valid_combinations) > 0) {
   cat("\nValid combinations with >= 2 final biomarkers:\n")
